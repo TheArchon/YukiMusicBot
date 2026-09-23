@@ -7,7 +7,7 @@ from pytgcalls.exceptions import NoActiveGroupCall
 import config
 from YukiMusic import LOGGER, yuki, userbot
 from YukiMusic.core.call import Shruti
-from YkiMusic.misc import sudo
+from YukiMusic.misc import sudo
 from YukiMusic.plugins import ALL_MODULES
 from YukiMusic.utils.database import get_banned_users, get_gbanned
 from config import BANNED_USERS

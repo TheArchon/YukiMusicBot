@@ -137,22 +137,39 @@ def _queue_len(chat_id):
     return max(len(tracks) - 1, 0) if tracks else 0
 
 
+def _emoji_text(emoji_id, fallback, text):
+    return [
+        types.RichTextCustomEmoji(
+            custom_emoji_id=emoji_id,
+            alternative_text=fallback,
+        ),
+        " ",
+        text,
+    ]
+
+
 def _control_rows(_, chat_id, playing, styles):
     replay_style, toggle_style, skip_style, close_style = styles
 
     toggle = (
         types.RichMessageButton(
-            text=_["RICH_BTN_PAUSE"],
+            text=_emoji_text(
+                "4956612582816351459",
+                "⏸️",
+                _["RICH_BTN_PAUSE"],
+            ),
             style=toggle_style,
             callback_data=f"ADMIN Pause|{chat_id}",
-            icon_custom_emoji_id="4956612582816351459",
         )
         if playing
         else types.RichMessageButton(
-            text=_["RICH_BTN_RESUME"],
+            text=_emoji_text(
+                "5354815888639942120",
+                "▶️",
+                _["RICH_BTN_RESUME"],
+            ),
             style=toggle_style,
             callback_data=f"ADMIN Resume|{chat_id}",
-            icon_custom_emoji_id="5354815888639942120",
         )
     )
 
@@ -160,27 +177,36 @@ def _control_rows(_, chat_id, playing, styles):
         types.InputRichBlockButtons(
             buttons=[
                 types.RichMessageButton(
-                    text=_["RICH_BTN_REPLAY"],
+                    text=_emoji_text(
+                        "6071242534128981419",
+                        "🔁",
+                        _["RICH_BTN_REPLAY"],
+                    ),
                     style=replay_style,
                     callback_data=f"ADMIN Replay|{chat_id}",
-                    icon_custom_emoji_id="6071242534128981419",
                 ),
                 toggle,
                 types.RichMessageButton(
-                    text=_["RICH_BTN_SKIP"],
+                    text=_emoji_text(
+                        "5357578119546951062",
+                        "⏭️",
+                        _["RICH_BTN_SKIP"],
+                    ),
                     style=skip_style,
                     callback_data=f"ADMIN Skip|{chat_id}",
-                    icon_custom_emoji_id="5357578119546951062",
                 ),
             ]
         ),
         types.InputRichBlockButtons(
             buttons=[
                 types.RichMessageButton(
-                    text="✕ Close",
+                    text=_emoji_text(
+                        "5359543311897998264",
+                        "✕",
+                        "Close",
+                    ),
                     style=close_style,
                     callback_data=f"ADMIN Close|{chat_id}",
-                    icon_custom_emoji_id="5359543311897998264",
                 ),
             ]
         ),
@@ -338,7 +364,9 @@ async def update_now_playing_progress(mystic, chat_id, played, dur, playing=True
     if not photo or not caption_html:
         return None
     _ = await _lang(chat_id)
-    blocks = build_now_playing_blocks(_, photo, caption_html, chat_id, played, dur, playing)
+    blocks = build_now_playing_blocks(
+        _, photo, caption_html, chat_id, played, dur, playing
+    )
     return await _edit_rich(mystic, blocks)
 
 
@@ -354,7 +382,9 @@ async def set_now_playing_state(chat_id, playing):
     played = seconds_to_min(info[0].get("played", 0)) or None
     dur = info[0].get("dur")
     _ = await _lang(chat_id)
-    blocks = build_now_playing_blocks(_, photo, caption_html, chat_id, played, dur, playing)
+    blocks = build_now_playing_blocks(
+        _, photo, caption_html, chat_id, played, dur, playing
+    )
     try:
         return await _edit_rich(mystic, blocks)
     except Exception:

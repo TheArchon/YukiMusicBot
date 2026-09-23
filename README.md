@@ -13,7 +13,7 @@ Replace `YOUR_GITHUB_USERNAME/YOUR_REPO` below with the GitHub repository contai
 ```markdown
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO)
 ```
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Yewsdhi/Zeemusicbot-34)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/TheArchon/YukiMusicBot)
 ```
 
 ### Required environment variables

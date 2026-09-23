@@ -20,7 +20,7 @@ from YukiMusic.utils.database import (
     is_active_chat,
     is_maintenance,
 )
-from ShrutixMusic.utils.inline import botplaylist_markup
+from YukiMusic.utils.inline import botplaylist_markup
 from config import PLAYLIST_IMG_URL, SUPPORT_CHAT, adminlist
 from strings import get_string
 

@@ -27,7 +27,7 @@ def _parse_inline(segment):
 
     for m in _TAG_RE.finditer(segment):
         if m.start() > pos:
-            parts.append(segment[pos : m.start()])
+            parts.append(segment[pos:m.start()])
         pos = m.end()
 
         closing, tag, href = m.group(1), m.group(2).lower(), m.group(3)
@@ -139,19 +139,23 @@ def _queue_len(chat_id):
 
 def _control_rows(_, chat_id, playing, styles):
     replay_style, toggle_style, skip_style, close_style = styles
+
     toggle = (
         types.RichMessageButton(
             text=_["RICH_BTN_PAUSE"],
             style=toggle_style,
             callback_data=f"ADMIN Pause|{chat_id}",
+            icon_custom_emoji_id="4956612582816351459",
         )
         if playing
         else types.RichMessageButton(
             text=_["RICH_BTN_RESUME"],
             style=toggle_style,
             callback_data=f"ADMIN Resume|{chat_id}",
+            icon_custom_emoji_id="5354815888639942120",
         )
     )
+
     return [
         types.InputRichBlockButtons(
             buttons=[
@@ -159,12 +163,14 @@ def _control_rows(_, chat_id, playing, styles):
                     text=_["RICH_BTN_REPLAY"],
                     style=replay_style,
                     callback_data=f"ADMIN Replay|{chat_id}",
+                    icon_custom_emoji_id="6071242534128981419",
                 ),
                 toggle,
                 types.RichMessageButton(
                     text=_["RICH_BTN_SKIP"],
                     style=skip_style,
                     callback_data=f"ADMIN Skip|{chat_id}",
+                    icon_custom_emoji_id="5357578119546951062",
                 ),
             ]
         ),
@@ -174,6 +180,7 @@ def _control_rows(_, chat_id, playing, styles):
                     text="✕ Close",
                     style=close_style,
                     callback_data=f"ADMIN Close|{chat_id}",
+                    icon_custom_emoji_id="5359543311897998264",
                 ),
             ]
         ),

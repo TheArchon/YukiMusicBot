@@ -21,6 +21,8 @@ from YukiMusic.utils.database import (
 from YukiMusic.utils.decorators.language import LanguageStart
 from YukiMusic.utils.formatters import get_readable_time
 from YukiMusic.utils.inline import help_pannel, private_panel, start_panel
+from YukiMusic.utils.rich_help import send_help
+from YukiMusic.utils.rich_start import send_group_start, send_private_start
 from config import BANNED_USERS
 from strings import get_string
 
@@ -39,12 +41,13 @@ async def start_pm(client, message: Message, _):
     effect_id = random.choice(MESSAGE_EFFECTS)
     name = message.text.split(None, 1)[1] if len(message.text.split()) > 1 else ""
     if name[0:4] == "help":
-        keyboard = help_pannel(_)
-        return await message.reply_photo(
+        return await send_help(
+            yuki,
+            message.chat.id,
+            _,
+            start=True,
+            page=1,
             photo=config.START_IMG_URL,
-            caption=_["help_1"].format(config.SUPPORT_CHAT),
-            reply_markup=keyboard,
-            effect_id=effect_id,
         )
     if name[0:3] == "sud":
         await sudoers_list(client=client, message=message, _=_)
@@ -92,12 +95,11 @@ async def start_pm(client, message: Message, _):
                 text=f"{message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴄʜᴇᴄᴋ <b>ᴛʀᴀᴄᴋ ɪɴғᴏʀᴍᴀᴛɪᴏɴ</b>.\n\n<b>ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n<b>ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.from_user.username}",
             )
         return
-    out = private_panel(_)
-    await message.reply_photo(
-        photo=config.START_IMG_URL,
-        caption=_["start_2"].format(message.from_user.mention, yuki.mention),
-        reply_markup=InlineKeyboardMarkup(out),
-        effect_id=effect_id,
+    await send_private_start(
+        message,
+        _,
+        _["start_2"].format(message.from_user.mention, yuki.mention),
+        config.START_IMG_URL,
     )
     if await is_on_off(2):
         return await yuki.send_message(
@@ -109,12 +111,12 @@ async def start_pm(client, message: Message, _):
 @yuki.on_message(filters.command(["start"]) & filters.group & ~BANNED_USERS)
 @LanguageStart
 async def start_gp(client, message: Message, _):
-    out = start_panel(_)
     uptime = int(time.time() - _boot_)
-    await message.reply_photo(
-        photo=config.START_IMG_URL,
-        caption=_["start_1"].format(yuki.mention, get_readable_time(uptime)),
-        reply_markup=InlineKeyboardMarkup(out),
+    await send_group_start(
+        message,
+        _,
+        _["start_1"].format(yuki.mention, get_readable_time(uptime)),
+        config.START_IMG_URL,
     )
     return await add_served_chat(message.chat.id)
 
@@ -145,16 +147,16 @@ async def welcome(client, message: Message):
                     )
                     return await yuki.leave_chat(message.chat.id)
 
-                out = start_panel(_)
-                await message.reply_photo(
-                    photo=config.START_IMG_URL,
-                    caption=_["start_3"].format(
+                await send_group_start(
+                    message,
+                    _,
+                    _["start_3"].format(
                         message.from_user.first_name,
                         yuki.mention,
                         message.chat.title,
                         yuki.mention,
                     ),
-                    reply_markup=InlineKeyboardMarkup(out),
+                    config.START_IMG_URL,
                 )
                 await add_served_chat(message.chat.id)
                 await message.stop_propagation()

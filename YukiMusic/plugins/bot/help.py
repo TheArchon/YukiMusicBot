@@ -8,6 +8,7 @@ from YukiMusic.utils import help_pannel
 from YukiMusic.utils.database import get_lang
 from YukiMusic.utils.decorators.language import LanguageStart, languageCB
 from YukiMusic.utils.inline.help import help_back_markup, private_help_panel
+from YukiMusic.utils.rich_help import build_help_blocks, build_help_topic_blocks
 from config import BANNED_USERS, START_IMG_URL, SUPPORT_CHAT
 from strings import get_string, helpers
 
@@ -56,9 +57,9 @@ async def helper_private(
         chat_id = update.message.chat.id
         language = await get_lang(chat_id)
         _ = get_string(language)
-        keyboard = help_pannel(_, True, 1)
+        blocks = build_help_blocks(_, start=True, page=1)
         await update.edit_message_text(
-            _["help_1"].format(SUPPORT_CHAT), reply_markup=keyboard
+            rich_message=types.InputRichMessage(blocks=blocks)
         )
     else:
         try:
@@ -67,12 +68,12 @@ async def helper_private(
             pass
         language = await get_lang(update.chat.id)
         _ = get_string(language)
-        keyboard = help_pannel(_, None, 1)
-        await update.reply_photo(
-            photo=START_IMG_URL,
-            caption=_["help_1"].format(SUPPORT_CHAT),
-            reply_markup=keyboard,
-            effect_id=random.choice(MESSAGE_EFFECTS),
+        blocks = build_help_blocks(
+            _, start=False, page=1, photo=START_IMG_URL
+        )
+        await yuki.send_rich_message(
+            update.chat.id,
+            rich_message=types.InputRichMessage(blocks=blocks),
         )
 
 
@@ -90,9 +91,9 @@ async def help_page_cb(client, CallbackQuery, _):
     page = int(parts[1])
     sf = parts[2] if len(parts) > 2 else "0"
     START = sf == "1"
-    keyboard = help_pannel(_, START, page)
+    blocks = build_help_blocks(_, start=START, page=page)
     await CallbackQuery.edit_message_text(
-        _["help_1"].format(SUPPORT_CHAT), reply_markup=keyboard
+        rich_message=types.InputRichMessage(blocks=blocks)
     )
 
 
@@ -104,5 +105,7 @@ async def helper_cb(client, CallbackQuery, _):
     sf = parts[2] if len(parts) > 2 else "0"
     START = sf == "1"
     page = _topic_page(cb)
-    keyboard = help_back_markup(_, page, START)
-    await CallbackQuery.edit_message_text(HELP_TOPICS[cb], reply_markup=keyboard)
+    blocks = build_help_topic_blocks(_, cb, page=page, start=START)
+    await CallbackQuery.edit_message_text(
+        rich_message=types.InputRichMessage(blocks=blocks)
+    )

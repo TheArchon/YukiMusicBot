@@ -6,8 +6,8 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from YukiMusic import yuki
 
-PAGE_ONE = ["hb1", "hb2", "hb3", "hb4", "hb5", "hb6", "hb7", "hb8", "hb9"]
-PAGE_TWO = ["hb10", "hb11", "hb12", "hb13", "hb14", "hb15", "hb16"]
+PAGE_ONE = ["hb1", "hb2", "hb6", "hb11", "hb14", "hb16"]
+PAGE_TWO = []
 NAV_STYLES = (ButtonStyle.PRIMARY, ButtonStyle.SUCCESS, ButtonStyle.DANGER)
 
 
@@ -40,25 +40,9 @@ def help_pannel(_, START: Union[bool, int] = None, page: int = 1):
     )
     style = random.choice(NAV_STYLES)
     mark = _mark_button(_, START, style)
-    if page == 1:
-        nav = [
-            mark,
-            InlineKeyboardButton(
-                text=_["NEXT_BUTTON"],
-                callback_data=f"help_page 2 {sf}",
-                style=style,
-            ),
-        ]
-    else:
-        nav = [
-            InlineKeyboardButton(
-                text=_["PREV_BUTTON"],
-                callback_data=f"help_page 1 {sf}",
-                style=style,
-            ),
-            mark,
-        ]
-    rows.append(nav)
+    # The customized Help Center is a single page.
+    # Keep only the selected six help categories + one navigation button.
+    rows.append([mark])
     return InlineKeyboardMarkup(rows)
 
 

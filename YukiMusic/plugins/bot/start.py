@@ -50,11 +50,13 @@ async def start_pm(client, message: Message, _):
             ("hb14", "🔒 Sᴏɴɢ Cᴏᴍᴍᴀɴᴅs", helpers.HELP_14),
             ("hb16", "🔒 Aᴜᴛᴏᴘʟᴀʏ Cᴏᴍᴍᴀɴᴅs", helpers.HELP_16),
         ]
-        _, title, commands = help_pages[0]
+        topic_id, title, commands = help_pages[0]
         caption = (
             f"<b>🔒 Hᴇʟᴘ Cᴇɴᴛᴇʀ 1/{len(help_pages)}</b>\n\n"
             f"<b>{title}</b>\n\n{commands}"
         )
+        # Keep the language dictionary `_` intact. Passing the topic id here
+        # would break button labels/callback rendering.
         keyboard = help_topic_markup(_, 1, True)
         return await message.reply_text(
             caption,

@@ -20,7 +20,7 @@ MESSAGE_EFFECTS = [
     5046509860389126442,
 ]
 
-# The six pages shown by the new Help Center.
+# Only these six sections are used as Help Center pages.
 HELP_TOPICS = {
     "hb1": helpers.HELP_1,
     "hb2": helpers.HELP_2,
@@ -32,6 +32,16 @@ HELP_TOPICS = {
 
 HELP_PAGES = ["hb1", "hb2", "hb6", "hb11", "hb14", "hb16"]
 
+# Display titles shown above each page, similar to the reference video.
+HELP_TITLES = {
+    "hb1": "⚡ Aᴅᴍɪɴ Cᴏᴍᴍᴀɴᴅs",
+    "hb2": "🔐 Aᴜᴛʜ Cᴏᴍᴍᴀɴᴅs",
+    "hb6": "🎵 C-Pʟᴀʏ Cᴏᴍᴍᴀɴᴅs",
+    "hb11": "▶️ Pʟᴀʏ Cᴏᴍᴍᴀɴᴅs",
+    "hb14": "🎶 Sᴏɴɢ Cᴏᴍᴍᴀɴᴅs",
+    "hb16": "🔁 Aᴜᴛᴏᴘʟᴀʏ Cᴏᴍᴍᴀɴᴅs",
+}
+
 
 def _topic_page(cb):
     return HELP_PAGES.index(cb) + 1
@@ -41,18 +51,35 @@ def _topic_for_page(page):
     return HELP_PAGES[page - 1]
 
 
-async def _show_help_home(CallbackQuery, _ , START=False):
+def _page_text(topic, page):
+    return f"<b>🔒 Help Center {page}/{len(HELP_PAGES)}</b>\n\n<b>{HELP_TITLES[topic]}</b>\n\n{HELP_TOPICS[topic]}"
+
+
+async def _show_help_home(CallbackQuery, _, START=False):
+    # The Help button now opens page 1 directly, like the reference video.
+    page = 1
+    topic = _topic_for_page(page)
+    keyboard = help_topic_markup(_, page, START)
+    try:
+        await CallbackQuery.edit_message_text(
+            _page_text(topic, page), reply_markup=keyboard
+        )
+    except MessageNotModified:
+        pass
+
+
+async def _show_help_categories(CallbackQuery, _, START=False):
     keyboard = help_pannel(_, START, 1)
     try:
         await CallbackQuery.edit_message_text(
-            _["help_1"].format(SUPPORT_CHAT), reply_markup=keyboard
+            _['help_1'].format(SUPPORT_CHAT), reply_markup=keyboard
         )
     except MessageNotModified:
         pass
 
 
 @yuki.on_message(filters.command(["help"]) & filters.private & ~BANNED_USERS)
-@yuki.on_callback_query(filters.regex("settings_back_helper") & ~BANNED_USERS)
+@yuki.on_callback_query(filters.regex(r"^settings_back_helper$") & ~BANNED_USERS)
 async def helper_private(
     client: yuki, update: Union[types.Message, types.CallbackQuery]
 ):
@@ -73,12 +100,12 @@ async def helper_private(
             pass
         language = await get_lang(update.chat.id)
         _ = get_string(language)
-        keyboard = help_pannel(_, None, 1)
-        await update.reply_photo(
-            photo=START_IMG_URL,
-            caption=_["help_1"].format(SUPPORT_CHAT),
+        page = 1
+        topic = _topic_for_page(page)
+        keyboard = help_topic_markup(_, page, False)
+        await update.reply_text(
+            _page_text(topic, page),
             reply_markup=keyboard,
-            effect_id=random.choice(MESSAGE_EFFECTS),
         )
 
 
@@ -86,7 +113,7 @@ async def helper_private(
 @LanguageStart
 async def help_com_group(client, message: Message, _):
     keyboard = private_help_panel(_)
-    await message.reply_text(_["help_2"], reply_markup=InlineKeyboardMarkup(keyboard))
+    await message.reply_text(_['help_2'], reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 @yuki.on_callback_query(filters.regex(r"^help_page\s") & ~BANNED_USERS)
@@ -107,7 +134,9 @@ async def help_page_cb(client, CallbackQuery, _):
     topic = _topic_for_page(page)
     keyboard = help_topic_markup(_, page, START)
     try:
-        await CallbackQuery.edit_message_text(HELP_TOPICS[topic], reply_markup=keyboard)
+        await CallbackQuery.edit_message_text(
+            _page_text(topic, page), reply_markup=keyboard
+        )
     except MessageNotModified:
         pass
     finally:
@@ -134,7 +163,9 @@ async def helper_cb(client, CallbackQuery, _):
     page = _topic_page(cb)
     keyboard = help_topic_markup(_, page, START)
     try:
-        await CallbackQuery.edit_message_text(HELP_TOPICS[cb], reply_markup=keyboard)
+        await CallbackQuery.edit_message_text(
+            _page_text(cb, page), reply_markup=keyboard
+        )
     except MessageNotModified:
         pass
     finally:
@@ -150,7 +181,7 @@ async def help_home_cb(client, CallbackQuery, _):
     parts = CallbackQuery.data.split()
     sf = parts[1] if len(parts) > 1 else "0"
     START = sf == "1"
-    await _show_help_home(CallbackQuery, _, START)
+    await _show_help_categories(CallbackQuery, _, START)
     try:
         await CallbackQuery.answer()
     except Exception:

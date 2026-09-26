@@ -75,10 +75,10 @@ async def _show_help_categories(CallbackQuery, _, START=False):
             pass
 
 
-async def _send_start_page(client, chat_id, _, message_to_replace=None, user_mention=None):
+async def _send_start_page(client, chat_id, _, message_to_replace=None):
     """Return to the real private /start page."""
     caption = _["start_2"].format(
-        user_mention or "",
+        message_to_replace.from_user.mention if message_to_replace else "",
         yuki.mention,
     )
     keyboard = InlineKeyboardMarkup(private_panel(_))
@@ -107,24 +107,18 @@ async def helper_private_message(client: yuki, message: Message):
 
     language = await get_lang(message.chat.id)
     _ = get_string(language)
-
-    # /help opens the first paginated Help page directly (video-style UI).
-    topic = HELP_PAGES[0]
-    text = _page_text(topic, 1)
-    keyboard = help_topic_markup(_, 1, False)
-    await client.send_message(
+    keyboard = help_pannel(_, False, 1)
+    await client.send_photo(
         chat_id=message.chat.id,
-        text=text,
+        photo=START_IMG_URL,
+        caption=_["help_1"].format(SUPPORT_CHAT),
         reply_markup=keyboard,
+        effect_id=random.choice(MESSAGE_EFFECTS),
     )
 
 
 @yuki.on_callback_query(filters.regex(r"^settings_back_helper$") & ~BANNED_USERS)
 async def helper_private_back(client: yuki, CallbackQuery: types.CallbackQuery):
-    """Start page -> directly open the first paginated Help page.
-
-    /help intentionally remains the six-category menu.
-    """
     try:
         await CallbackQuery.answer()
     except Exception:
@@ -133,21 +127,8 @@ async def helper_private_back(client: yuki, CallbackQuery: types.CallbackQuery):
     chat_id = CallbackQuery.message.chat.id
     language = await get_lang(chat_id)
     _ = get_string(language)
-
-    topic = HELP_PAGES[0]
-    text = _page_text(topic, 1)
-    keyboard = help_topic_markup(_, 1, True)
-
-    try:
-        await CallbackQuery.message.delete()
-    except Exception:
-        pass
-
-    await client.send_message(
-        chat_id=chat_id,
-        text=text,
-        reply_markup=keyboard,
-    )
+    # Help button from the real Start page -> six-category Help Center.
+    await _show_help_categories(CallbackQuery, _, True)
 
 
 @yuki.on_message(filters.command(["help"]) & filters.group & ~BANNED_USERS)
@@ -175,12 +156,9 @@ async def helper_cb(client, CallbackQuery, _):
     text = _page_text(cb, page)
     keyboard = help_topic_markup(_, page, START)
 
-    # The category menu is a photo message; replace it with the text command page.
-    try:
-        await CallbackQuery.message.delete()
-    except Exception:
-        pass
-
+    # A photo message cannot be converted into a text message with Telegram's
+    # edit API. Send the command page first, then delete the old Help Center
+    # message. This prevents the visible blank/deleted-message gap.
     try:
         await client.send_message(
             chat_id=CallbackQuery.message.chat.id,
@@ -188,6 +166,10 @@ async def helper_cb(client, CallbackQuery, _):
             reply_markup=keyboard,
         )
     finally:
+        try:
+            await CallbackQuery.message.delete()
+        except Exception:
+            pass
         try:
             await CallbackQuery.answer()
         except Exception:
@@ -239,7 +221,6 @@ async def help_home_cb(client, CallbackQuery, _):
         chat_id,
         _,
         message_to_replace=CallbackQuery.message,
-        user_mention=CallbackQuery.from_user.mention,
     )
 
 

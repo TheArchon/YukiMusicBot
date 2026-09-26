@@ -107,13 +107,15 @@ async def helper_private_message(client: yuki, message: Message):
 
     language = await get_lang(message.chat.id)
     _ = get_string(language)
-    keyboard = help_pannel(_, False, 1)
-    await client.send_photo(
+
+    # /help opens the first paginated Help page directly (video-style UI).
+    topic = HELP_PAGES[0]
+    text = _page_text(topic, 1)
+    keyboard = help_topic_markup(_, 1, False)
+    await client.send_message(
         chat_id=message.chat.id,
-        photo=START_IMG_URL,
-        caption=_["help_1"].format(SUPPORT_CHAT),
+        text=text,
         reply_markup=keyboard,
-        effect_id=random.choice(MESSAGE_EFFECTS),
     )
 
 

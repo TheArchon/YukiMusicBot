@@ -12,18 +12,18 @@ def stats_buttons(_, status):
         keyboard = [
             [
                 success_button(
-                    text=_[\"SA_B_2\"],
-                    callback_data=\"bot_stats_sudo\",
+                    text=_["SA_B_2"],
+                    callback_data="bot_stats_sudo",
                 ),
                 primary_button(
-                    text=_[\"SA_B_3\"],
-                    callback_data=\"TopOverall\",
+                    text=_["SA_B_3"],
+                    callback_data="TopOverall",
                 ),
             ],
             [
                 danger_button(
-                    text=_[\"CLOSE_BUTTON\"],
-                    callback_data=\"close\",
+                    text=_["CLOSE_BUTTON"],
+                    callback_data="close",
                 ),
             ],
         ]
@@ -31,14 +31,14 @@ def stats_buttons(_, status):
         keyboard = [
             [
                 primary_button(
-                    text=_[\"SA_B_1\"],
-                    callback_data=\"TopOverall\",
+                    text=_["SA_B_1"],
+                    callback_data="TopOverall",
                 ),
             ],
             [
                 danger_button(
-                    text=_[\"CLOSE_BUTTON\"],
-                    callback_data=\"close\",
+                    text=_["CLOSE_BUTTON"],
+                    callback_data="close",
                 ),
             ],
         ]
@@ -51,12 +51,12 @@ def back_stats_buttons(_):
         [
             [
                 primary_button(
-                    text=_[\"BACK_BUTTON\"],
-                    callback_data=\"stats_back\",
+                    text=_["BACK_BUTTON"],
+                    callback_data="stats_back",
                 ),
                 danger_button(
-                    text=_[\"CLOSE_BUTTON\"],
-                    callback_data=\"close\",
+                    text=_["CLOSE_BUTTON"],
+                    callback_data="close",
                 ),
             ],
         ]

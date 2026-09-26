@@ -2,6 +2,7 @@ import random
 from typing import Union
 
 from pyrogram import filters, types
+from pyrogram.errors import MessageNotModified
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 from YukiMusic import yuki
@@ -42,9 +43,12 @@ def _topic_for_page(page):
 
 async def _show_help_home(CallbackQuery, _ , START=False):
     keyboard = help_pannel(_, START, 1)
-    await CallbackQuery.edit_message_text(
-        _["help_1"].format(SUPPORT_CHAT), reply_markup=keyboard
-    )
+    try:
+        await CallbackQuery.edit_message_text(
+            _["help_1"].format(SUPPORT_CHAT), reply_markup=keyboard
+        )
+    except MessageNotModified:
+        pass
 
 
 @yuki.on_message(filters.command(["help"]) & filters.private & ~BANNED_USERS)
@@ -102,7 +106,15 @@ async def help_page_cb(client, CallbackQuery, _):
 
     topic = _topic_for_page(page)
     keyboard = help_topic_markup(_, page, START)
-    await CallbackQuery.edit_message_text(HELP_TOPICS[topic], reply_markup=keyboard)
+    try:
+        await CallbackQuery.edit_message_text(HELP_TOPICS[topic], reply_markup=keyboard)
+    except MessageNotModified:
+        pass
+    finally:
+        try:
+            await CallbackQuery.answer()
+        except Exception:
+            pass
 
 
 @yuki.on_callback_query(filters.regex(r"^help_callback\s") & ~BANNED_USERS)
@@ -121,7 +133,15 @@ async def helper_cb(client, CallbackQuery, _):
 
     page = _topic_page(cb)
     keyboard = help_topic_markup(_, page, START)
-    await CallbackQuery.edit_message_text(HELP_TOPICS[cb], reply_markup=keyboard)
+    try:
+        await CallbackQuery.edit_message_text(HELP_TOPICS[cb], reply_markup=keyboard)
+    except MessageNotModified:
+        pass
+    finally:
+        try:
+            await CallbackQuery.answer()
+        except Exception:
+            pass
 
 
 @yuki.on_callback_query(filters.regex(r"^help_home\s") & ~BANNED_USERS)
@@ -131,6 +151,10 @@ async def help_home_cb(client, CallbackQuery, _):
     sf = parts[1] if len(parts) > 1 else "0"
     START = sf == "1"
     await _show_help_home(CallbackQuery, _, START)
+    try:
+        await CallbackQuery.answer()
+    except Exception:
+        pass
 
 
 @yuki.on_callback_query(filters.regex(r"^help_noop$") & ~BANNED_USERS)

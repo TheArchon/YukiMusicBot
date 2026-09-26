@@ -20,9 +20,9 @@ from YukiMusic.utils.database import (
 )
 from YukiMusic.utils.decorators.language import LanguageStart
 from YukiMusic.utils.formatters import get_readable_time
-from YukiMusic.utils.inline import help_pannel, private_panel, start_panel
+from YukiMusic.utils.inline import help_pannel, help_topic_markup, private_panel, start_panel
 from config import BANNED_USERS
-from strings import get_string
+from strings import get_string, helpers
 
 MESSAGE_EFFECTS = [
     5107584321108051014,
@@ -39,12 +39,26 @@ async def start_pm(client, message: Message, _):
     effect_id = random.choice(MESSAGE_EFFECTS)
     name = message.text.split(None, 1)[1] if len(message.text.split()) > 1 else ""
     if name[0:4] == "help":
-        keyboard = help_pannel(_)
-        return await message.reply_photo(
-            photo=config.START_IMG_URL,
-            caption=_["help_1"].format(config.SUPPORT_CHAT),
+        # Group /help sends the user to a private start=help link.
+        # Open the same video-style paginated Help Center directly instead
+        # of showing the six-category menu.
+        help_pages = [
+            ("hb1", "🔒 Aᴅᴍɪɴ Cᴏᴍᴍᴀɴᴅs", helpers.HELP_1),
+            ("hb2", "🔒 Aᴜᴛʜ Cᴏᴍᴍᴀɴᴅs", helpers.HELP_2),
+            ("hb6", "🔒 C-Pʟᴀʏ Cᴏᴍᴍᴀɴᴅs", helpers.HELP_6),
+            ("hb11", "🔒 Pʟᴀʏ Cᴏᴍᴍᴀɴᴅs", helpers.HELP_11),
+            ("hb14", "🔒 Sᴏɴɢ Cᴏᴍᴍᴀɴᴅs", helpers.HELP_14),
+            ("hb16", "🔒 Aᴜᴛᴏᴘʟᴀʏ Cᴏᴍᴍᴀɴᴅs", helpers.HELP_16),
+        ]
+        _, title, commands = help_pages[0]
+        caption = (
+            f"<b>🔒 Hᴇʟᴘ Cᴇɴᴛᴇʀ 1/{len(help_pages)}</b>\n\n"
+            f"<b>{title}</b>\n\n{commands}"
+        )
+        keyboard = help_topic_markup(_, 1, True)
+        return await message.reply_text(
+            caption,
             reply_markup=keyboard,
-            effect_id=effect_id,
         )
     if name[0:3] == "sud":
         await sudoers_list(client=client, message=message, _=_)

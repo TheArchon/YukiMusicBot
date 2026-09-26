@@ -107,13 +107,14 @@ async def helper_private_message(client: yuki, message: Message):
 
     language = await get_lang(message.chat.id)
     _ = get_string(language)
-    keyboard = help_pannel(_, False, 1)
-    await client.send_photo(
+    # /help opens directly on the first paginated Help Center page.
+    topic = HELP_PAGES[0]
+    text = _page_text(topic, 1)
+    keyboard = help_topic_markup(_, 1, False)
+    await client.send_message(
         chat_id=message.chat.id,
-        photo=START_IMG_URL,
-        caption=_["help_1"].format(SUPPORT_CHAT),
+        text=text,
         reply_markup=keyboard,
-        effect_id=random.choice(MESSAGE_EFFECTS),
     )
 
 
@@ -127,8 +128,24 @@ async def helper_private_back(client: yuki, CallbackQuery: types.CallbackQuery):
     chat_id = CallbackQuery.message.chat.id
     language = await get_lang(chat_id)
     _ = get_string(language)
-    # Help button from the real Start page -> six-category Help Center.
-    await _show_help_categories(CallbackQuery, _, True)
+
+    # Help & Commands from the real Start page opens directly on page 1.
+    # The Start page is a photo message, so Telegram cannot convert it into
+    # a text message. Send the Help page first, then remove the old Start page.
+    topic = HELP_PAGES[0]
+    text = _page_text(topic, 1)
+    keyboard = help_topic_markup(_, 1, True)
+    try:
+        await client.send_message(
+            chat_id=chat_id,
+            text=text,
+            reply_markup=keyboard,
+        )
+    finally:
+        try:
+            await CallbackQuery.message.delete()
+        except Exception:
+            pass
 
 
 @yuki.on_message(filters.command(["help"]) & filters.group & ~BANNED_USERS)

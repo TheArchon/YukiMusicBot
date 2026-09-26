@@ -72,9 +72,13 @@ def help_topic_markup(_, page: int = 1, START: Union[bool, int] = None):
         style=ButtonStyle.PRIMARY,
     )
 
+    navigation_row = [prev_button, page_button]
+    if page < total:
+        navigation_row.append(next_button)
+
     return InlineKeyboardMarkup(
         [
-            [prev_button, page_button, next_button],
+            navigation_row,
             [
                 InlineKeyboardButton(
                     text="👋 Home",

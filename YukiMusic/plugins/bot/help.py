@@ -52,7 +52,7 @@ async def _show_help_home(CallbackQuery, _ , START=False):
 
 
 @yuki.on_message(filters.command(["help"]) & filters.private & ~BANNED_USERS)
-@yuki.on_callback_query(filters.regex("settingsback_helper") & ~BANNED_USERS)
+@yuki.on_callback_query(filters.regex("settings_back_helper") & ~BANNED_USERS)
 async def helper_private(
     client: yuki, update: Union[types.Message, types.CallbackQuery]
 ):
